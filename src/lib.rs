@@ -1,3 +1,5 @@
-mod bitwise;
-mod edge;
-mod graph_set;
+mod coupling;
+mod ensemble;
+mod ising_hamiltonian;
+mod utils;
+mod pyo3;
