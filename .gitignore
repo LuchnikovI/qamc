@@ -1,3 +1,6 @@
 /target
 /debug
 /venv
+/src/__pycache__
+.pytest_cache
+.rustc_info.json
