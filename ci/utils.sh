@@ -3,6 +3,9 @@
 ci_scripts_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
 export QAMC_LOG_LEVELS=${LOG_LEVELS:-'DEBUG INFO WARNING ERROR'}
+export QAMC_RUST_IMAGE=${QAMC_RUST_IMAGE:-"rust:1.74-bookworm"}
+export QAMC_IMAGE_NAME=${QAMC_IMAGE_NAME:-"${ci_scripts_dir}/qamc"}
+export QAMC_BASE_IMAGE=${QAMC_BASE_IMAGE:-"debian:bookworm"}
 
 # -------------------------------------------------------------------------------------------
 

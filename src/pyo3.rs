@@ -67,7 +67,7 @@ impl IsingsEnsemble {
         let rows_number = self.0.len();
         let columns_number = 1 << self.0[0].get_spins_number();
         let diagonals = unsafe { PyArray2::new(py, [rows_number, columns_number], false) };
-        let start = unsafe { diagonals.as_array_mut() }.as_mut_ptr() as *mut f64;
+        let start: *mut f64 = unsafe { diagonals.as_array_mut() }.as_mut_ptr();
         let strides = diagonals.strides();
         let (s1, s2) = (
             (strides[0] as usize) / size_of::<f64>(),
