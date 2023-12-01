@@ -36,4 +36,9 @@ def test_isings_ensemble_small():
     assert np.isclose(diagonals[1,  2], -3.3)
     assert np.isclose(diagonals[1,  -3], -3.3)
 
-test_isings_ensemble_small()
+def test_normalization_constants_shape():
+    ensemble = get_random_isings_ensemble(
+        10, 100, 1., "uniform", {"lb": 0.5, "ub": 1.5}, "uniform", {"lb": 0.5, "ub": 1.5},
+    )
+    alphas = ensemble.get_normalizing_factors()
+    alphas.shape = (10,)

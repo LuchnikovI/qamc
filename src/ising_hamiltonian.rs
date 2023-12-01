@@ -105,6 +105,21 @@ impl IsingHamiltonian {
     pub(super) fn get_spins_number(&self) -> usize {
         self.local_fields.len()
     }
+
+    #[inline(always)]
+    pub(super) fn get_normalizing_factors(
+        &self
+    ) -> f64 {
+        let mut denom_sq = 0f64;
+        for coupling in &self.couplings {
+            let (_, _, ampl) = (*coupling).into();
+            denom_sq += ampl.powi(2);
+        }
+        for local_field in &self.local_fields {
+            denom_sq += (*local_field).powi(2);
+        }
+        (self.get_spins_number() as f64).sqrt() / denom_sq.sqrt()
+    }
 }
 
 #[cfg(test)]

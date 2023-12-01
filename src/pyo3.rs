@@ -4,7 +4,7 @@ use std::mem::size_of;
 use crate::ensemble::Ensemble;
 use crate::ising_hamiltonian::IsingHamiltonian;
 use anyhow::Result;
-use numpy::PyArray2;
+use numpy::{PyArray1, PyArray2};
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
@@ -80,6 +80,21 @@ impl IsingsEnsemble {
             }
         }
         Ok(diagonals)
+    }
+
+    pub fn get_normalizing_factors<'py>(&self, py: Python<'py>) -> &'py PyArray1<f64> {
+        let ensemble_size = self.0.len();
+        let norm_constants = unsafe { PyArray1::new(py, [ensemble_size], false) };
+        let start: *mut f64 = unsafe { norm_constants.as_array_mut() }.as_mut_ptr();
+        let stride = (norm_constants.strides()[0] as usize) / size_of::<f64>();
+        for (i, ham) in self.0.iter().enumerate() {
+            unsafe { *start.add(i * stride) = ham.get_normalizing_factors() };
+        }
+        norm_constants
+    }
+
+    pub fn get_spins_number(&self) -> usize {
+        self.0[0].get_spins_number()
     }
 }
 
