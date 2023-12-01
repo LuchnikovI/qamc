@@ -42,3 +42,27 @@ def test_normalization_constants_shape():
     )
     alphas = ensemble.get_normalizing_factors()
     alphas.shape = (10,)
+
+def test_normalization_constants_small():
+    ensemble = IsingsEnsemble([
+        [
+            (0, 1, 1.1),
+            (1, 2, 2.1),
+            (2, 0, 1.1),
+        ],
+        [
+            (0, 1, -1.1),
+            (1, 2, -1.1),
+            (2, 0, 1.1),
+        ],
+    ],
+    [
+        [1., 0., 1.],
+        [0., 0., 0.],
+    ])
+    trial_alphas = ensemble.get_normalizing_factors()
+    correct_alphas = np.array([
+        np.sqrt(3) / np.sqrt(2 * (1.1 ** 2) + 2.1 ** 2 + 2),
+        np.sqrt(3) / np.sqrt(3 * (1.1 ** 2))
+    ])
+    assert np.isclose(correct_alphas, trial_alphas).all()
