@@ -6,3 +6,4 @@
 .rustc_info.json
 /ci/qamc.def
 /ci/qamc.sif
+/outputs

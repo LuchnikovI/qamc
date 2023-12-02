@@ -1,0 +1,4 @@
+defaults:
+  - parameters: small
+  - couplings_ensemble: standard_normal
+  - local_fields_ensemble: standard_normal

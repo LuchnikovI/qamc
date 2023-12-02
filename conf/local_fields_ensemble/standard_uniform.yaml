@@ -1,0 +1,4 @@
+type: "uniform"
+params:
+  ub:  1.
+  lb: -1.

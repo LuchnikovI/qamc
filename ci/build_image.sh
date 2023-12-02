@@ -49,6 +49,7 @@ Stage: final
         pyyaml==6.0 \
         mypy==1.4.1 \
         h5py==3.9.0
+    python3 -m pip install --break-system-packages hydra-core --upgrade
     for wheel in /qamc/wheels/*
     do
         python3 -m pip install --break-system-packages "\${wheel}"

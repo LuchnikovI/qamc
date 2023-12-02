@@ -1,0 +1,5 @@
+type: "normal"
+density: 1.
+params:
+  mu:  0.
+  std: 1.
