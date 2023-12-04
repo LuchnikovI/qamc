@@ -48,7 +48,9 @@ Stage: final
         pytest==7.4.0 \
         pyyaml==6.0 \
         mypy==1.4.1 \
-        h5py==3.9.0
+        h5py==3.9.0 \
+        black==23.11.0 \
+        pylint==3.0.2
     python3 -m pip install --break-system-packages hydra-core --upgrade
     for wheel in /qamc/wheels/*
     do
