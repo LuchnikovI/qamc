@@ -1,2 +1,2 @@
-type: "discrete"
-params:
+distribution_type: "discrete"
+params: {}

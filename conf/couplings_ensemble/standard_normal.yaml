@@ -1,4 +1,4 @@
-type: "normal"
+distribution_type: "normal"
 density: 1.
 params:
   mu:  0.

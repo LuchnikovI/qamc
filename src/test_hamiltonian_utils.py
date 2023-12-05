@@ -1,28 +1,45 @@
 """tests for utils aimed on hamiltonians construction"""
 
 import numpy as np
+import pytest
 from hamiltonian_utils import get_random_isings_ensemble, IsingsEnsemble  # type: ignore # pylint: disable = no-name-in-module
-from test_utils import uniform_ensemble, discrete_ensemble
+from test_utils import (
+    uniform_ensemble,
+    discrete_ensemble,
+    std_normal_ensemble,
+    Ensemble,
+)
 
 
-def test_random_isings_ensemble_shape():
+@pytest.mark.parametrize(
+    "ensemble_type",
+    [
+        std_normal_ensemble,
+        uniform_ensemble,
+        discrete_ensemble,
+    ],
+)
+@pytest.mark.parametrize("density", [1.0, 0.5, 0.0])
+@pytest.mark.parametrize("spins_number", [1, 5, 10])
+@pytest.mark.parametrize("ensemble_size", [1, 128])
+def test_random_isings_ensemble_shape(
+    ensemble_type: Ensemble,
+    density: float,
+    spins_number: int,
+    ensemble_size: int,
+):
     """tests shape of the diagonal of a randomly generated ising ensemble"""
+    diag_size = 2**spins_number
     ensemble = get_random_isings_ensemble(
-        2,
-        10,
-        1.0,
-        *uniform_ensemble,
+        ensemble_size,
+        spins_number,
+        density,
+        *ensemble_type,
     )
     diagonals = ensemble.get_diagonals()
-    assert diagonals.shape == (2, 1024)
-    ensemble = get_random_isings_ensemble(
-        1000,
-        9,
-        1.0,
-        *discrete_ensemble,
-    )
-    diagonals = ensemble.get_diagonals()
-    assert diagonals.shape == (1000, 512)
+    assert (diagonals < 1e5).all()
+    assert (diagonals > -1e5).all()
+    assert diagonals.shape == (ensemble_size, diag_size)
 
 
 def test_isings_ensemble_small():
@@ -52,16 +69,34 @@ def test_isings_ensemble_small():
     assert np.isclose(diagonals[1, -3], -3.3)
 
 
-def test_normalization_constants_shape():
+@pytest.mark.parametrize(
+    "ensemble_type",
+    [
+        std_normal_ensemble,
+        uniform_ensemble,
+        discrete_ensemble,
+    ],
+)
+@pytest.mark.parametrize("density", [1.0, 0.5, 0.0])
+@pytest.mark.parametrize("spins_number", [1, 50, 100])
+@pytest.mark.parametrize("ensemble_size", [1, 128])
+def test_normalization_constants_shape(
+    ensemble_type: Ensemble,
+    density: float,
+    spins_number: int,
+    ensemble_size: int,
+):
     """tests correctnes of normalization constants shape"""
     ensemble = get_random_isings_ensemble(
-        10,
-        100,
-        1.0,
-        *uniform_ensemble,
+        ensemble_size,
+        spins_number,
+        density,
+        *ensemble_type,
     )
     alphas = ensemble.get_normalizing_factors()
-    alphas.shape = (10,)
+    assert (alphas > -1e5).all()
+    assert (alphas < 1e5).all()
+    assert alphas.shape == (ensemble_size,)
 
 
 def test_normalization_constants_small():

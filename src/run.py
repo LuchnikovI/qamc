@@ -9,49 +9,33 @@ from hamiltonian_utils import get_random_isings_ensemble  # type: ignore
 from transition_matrix import get_transition_matrix
 from omegaconf import DictConfig, OmegaConf
 import hydra
+from config import Config
 
 log = logging.getLogger(__name__)
 
 
 @hydra.main(version_base=None, config_path="../conf", config_name="config")
-def run(cfg):
+def run(cfg: Config):
     out_dir = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
-    spins_number = [int(s) for s in cfg.parameters.spins_number]
-    gamma = [float(g) for g in cfg.parameters.gamma]
-    tau = [float(t) for t in cfg.parameters.tau]
-    ensemble_size = int(cfg.parameters.ensemble_size)
-    couplings_ensemble = str(cfg.couplings_ensemble.type)
-    density = float(cfg.couplings_ensemble.density)
-    couplings_ensemble_params = cfg.couplings_ensemble.params
-    if couplings_ensemble_params is None:
-        couplings_ensemble_params = {}
-    else:
-        couplings_ensemble_params = {
-            str(k): float(v) for k, v in couplings_ensemble_params.items()
-        }
-    local_fields_ensemble = str(cfg.local_fields_ensemble.type)
-    local_fields_ensemble_params = cfg.local_fields_ensemble.params
-    if local_fields_ensemble_params is None:
-        local_fields_ensemble_params = {}
-    else:
-        local_fields_ensemble_params = {
-            str(k): float(v) for k, v in local_fields_ensemble_params.items()
-        }
     result = h5py.File(f"{out_dir}/result.hdf5", "w")
-    for sn in spins_number:
-        for t in tau:
-            for g in gamma:
+    for sn in cfg.parameters.spins_number:
+        for t in cfg.parameters.tau:
+            for g in cfg.parameters.gamma:
                 ensemble = get_random_isings_ensemble(
-                    ensemble_size,
+                    cfg.parameters.batch_size,
                     sn,
-                    density,
-                    couplings_ensemble,
-                    couplings_ensemble_params,
-                    local_fields_ensemble,
-                    local_fields_ensemble_params,
+                    cfg.couplings_ensemble.density,
+                    cfg.couplings_ensemble.distribution_type,
+                    {str(k): float(v) for k, v in cfg.couplings_ensemble.params.items()},
+                    cfg.local_fields_ensemble.distribution_type,
+                    {str(k): float(v) for k, v in cfg.local_fields_ensemble.params.items()},
                 )
-                transition = get_transition_matrix(ensemble, t, g)
-                lmbd = np.linalg.eigvals(transition)
+                assert cfg.parameters.ensemble_size % cfg.parameters.batch_size == 0, "Ensemble size must be multiple of batch size"
+                batches_number = int(cfg.parameters.ensemble_size / cfg.parameters.batch_size)
+                lmbd = np.zeros((0, 2 ** sn))
+                for _ in range(batches_number):
+                    transition = get_transition_matrix(ensemble, t, g)
+                    lmbd = np.append(lmbd, np.linalg.eigvals(transition), axis=0)
                 ids = np.argsort(np.abs(lmbd), axis=1)
                 lmbd = np.take_along_axis(lmbd, ids, 1)
                 result.create_dataset(f"{sn}/{g}/{t}/relax", data=lmbd[:, -2])

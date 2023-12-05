@@ -1,4 +1,4 @@
-type: "normal"
+distribution_type: "normal"
 params:
   mu:  0.
   std: 1.

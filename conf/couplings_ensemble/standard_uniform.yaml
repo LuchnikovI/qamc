@@ -1,4 +1,4 @@
-type: "uniform"
+distribution_type: "uniform"
 density: 1.
 params:
   ub:  1.
