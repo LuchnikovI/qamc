@@ -1,7 +1,10 @@
+# pylint: skip-file
+
 from dataclasses import dataclass
 from typing import List
 from omegaconf import DictConfig
 from hydra.core.config_store import ConfigStore
+
 
 @dataclass
 class ParametersConfig:
@@ -9,7 +12,9 @@ class ParametersConfig:
     gamma: List[float]
     tau: List[float]
     ensemble_size: int
+    inv_temperature: float
     batch_size: int
+
 
 @dataclass
 class CouplingsEnsembleConfig:
@@ -17,10 +22,12 @@ class CouplingsEnsembleConfig:
     density: float
     params: DictConfig
 
+
 @dataclass
 class LocalFieldsEnsembleConfig:
     distribution_type: str
     params: DictConfig
+
 
 @dataclass
 class Config:
@@ -28,6 +35,6 @@ class Config:
     couplings_ensemble: CouplingsEnsembleConfig
     local_fields_ensemble: LocalFieldsEnsembleConfig
 
+
 cs = ConfigStore.instance()
 cs.store(name="Config", node=Config)
-    

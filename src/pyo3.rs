@@ -98,8 +98,59 @@ impl IsingsEnsemble {
     }
 }
 
+#[pyfunction]
+fn get_local_updates_transition_matrix(matrix: &PyArray2<f64>) -> PyResult<()> {
+    let shape = matrix.shape();
+    if shape.len() != 2 {
+        return Err(PyErr::new::<PyRuntimeError, _>(format!(
+            "Array must be a matrix, got an arrau of shape {:?}.",
+            shape
+        )));
+    }
+    if shape[0] != shape[1] {
+        return Err(PyErr::new::<PyRuntimeError, _>(format!(
+            "Matrix must be square, got shape {:?}.",
+            shape
+        )));
+    }
+    let size = shape[0];
+    let mut spins_number = 0;
+    {
+        let mut size = size;
+        while size & 1 == 0 {
+            size >>= 1;
+            spins_number += 1;
+        }
+        if size != 1 {
+            return Err(PyErr::new::<PyRuntimeError, _>(format!(
+                "Number of columns and rows must be a power of two, get shape {:?}.",
+                shape
+            )));
+        }
+    }
+    if size != 1 << spins_number {
+        return Err(PyErr::new::<PyRuntimeError, _>(format!(
+            "Number of columns and rows must be a power of two, get shape {:?}.",
+            shape
+        )));
+    }
+    let strides = matrix.strides();
+    let stride1 = (strides[0] as usize) / size_of::<f64>();
+    let stride2 = (strides[1] as usize) / size_of::<f64>();
+    let matrix = unsafe { matrix.as_array_mut().as_mut_ptr() };
+    let prob = 1f64 / spins_number as f64;
+    for i in 0..size {
+        for s in 0..spins_number {
+            let j = i ^ (1 << s);
+            unsafe { *matrix.add(stride1 * j + stride2 * i) = prob }
+        }
+    }
+    Ok(())
+}
+
 #[pymodule]
 fn hamiltonian_utils(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(get_local_updates_transition_matrix, m)?)?;
     m.add_function(wrap_pyfunction!(get_random_isings_ensemble, m)?)?;
     m.add_class::<IsingsEnsemble>()?;
     Ok(())

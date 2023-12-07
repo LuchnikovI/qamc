@@ -107,9 +107,7 @@ impl IsingHamiltonian {
     }
 
     #[inline(always)]
-    pub(super) fn get_normalizing_factors(
-        &self
-    ) -> f64 {
+    pub(super) fn get_normalizing_factors(&self) -> f64 {
         let mut denom_sq = 0f64;
         for coupling in &self.couplings {
             let (_, _, ampl) = (*coupling).into();
